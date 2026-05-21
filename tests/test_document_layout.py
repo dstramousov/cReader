@@ -4,6 +4,7 @@ import pytest
 
 from fb2term.domain.book import Book, Section
 from fb2term.layout.document import (
+    ContentsEntry,
     DocumentLayoutError,
     LayoutOptions,
     RenderedDocument,
@@ -44,6 +45,61 @@ def test_render_book_flattens_metadata_and_sections() -> None:
     assert "## Сон" in document.lines
     assert "Первый абзац." in document.lines
     assert "Текст сна." in document.lines
+
+
+def test_render_book_builds_contents_entries() -> None:
+    book = Book(
+        id="book-id",
+        path=Path("book.fb2"),
+        title="Book",
+        authors=(),
+        language=None,
+        annotation=None,
+        sections=(
+            Section(
+                id="body/section[0]",
+                title="Глава 1",
+                paragraphs=("Text.",),
+                children=(
+                    Section(
+                        id="body/section[0]/section[0]",
+                        title="Сон",
+                        paragraphs=("Nested text.",),
+                        children=(),
+                    ),
+                ),
+            ),
+            Section(
+                id="body/section[1]",
+                title=None,
+                paragraphs=("Untitled text.",),
+                children=(),
+            ),
+        ),
+    )
+
+    document = render_book(book, options=LayoutOptions(width=40))
+
+    assert document.contents == (
+        ContentsEntry(
+            section_id="body/section[0]",
+            title="Глава 1",
+            line_offset=2,
+            level=1,
+        ),
+        ContentsEntry(
+            section_id="body/section[0]/section[0]",
+            title="Сон",
+            line_offset=5,
+            level=2,
+        ),
+        ContentsEntry(
+            section_id="body/section[1]",
+            title="Section 2",
+            line_offset=9,
+            level=1,
+        ),
+    )
 
 
 def test_rendered_document_clamps_viewport_offset() -> None:

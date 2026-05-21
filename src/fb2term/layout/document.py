@@ -42,14 +42,33 @@ class LayoutOptions:
 
 
 @dataclass(frozen=True, slots=True)
+class ContentsEntry:
+    """A jump target in the rendered table of contents.
+
+    Attributes:
+        section_id: Stable section identifier.
+        title: Display title for the section.
+        line_offset: Rendered document line offset for the section.
+        level: Nesting level starting at one.
+    """
+
+    section_id: str
+    title: str
+    line_offset: int
+    level: int
+
+
+@dataclass(frozen=True, slots=True)
 class RenderedDocument:
     """A book rendered into terminal-display lines.
 
     Attributes:
         lines: Rendered text lines.
+        contents: Jump targets for titled and untitled sections.
     """
 
     lines: tuple[str, ...]
+    contents: tuple[ContentsEntry, ...] = ()
 
     @property
     def line_count(self) -> int:
@@ -118,6 +137,7 @@ def render_book(
 
     layout_options = options or LayoutOptions()
     lines: list[str] = []
+    contents: list[ContentsEntry] = []
 
     _append_wrapped(lines, book.title, options=layout_options)
     if book.authors:
@@ -129,22 +149,42 @@ def render_book(
         _append_paragraph(lines, book.annotation, options=layout_options)
         _append_blank_lines(lines, 1)
 
-    for section in book.sections:
-        _append_section(lines, section, level=1, options=layout_options)
+    for index, section in enumerate(book.sections, start=1):
+        _append_section(
+            lines,
+            contents,
+            section,
+            level=1,
+            ordinal_path=(index,),
+            options=layout_options,
+        )
 
     if not book.sections:
         _append_wrapped(lines, "No readable sections found.", options=layout_options)
 
-    return RenderedDocument(lines=tuple(lines))
+    return RenderedDocument(lines=tuple(lines), contents=tuple(contents))
 
 
 def _append_section(
     lines: list[str],
+    contents: list[ContentsEntry],
     section: Section,
     *,
     level: int,
+    ordinal_path: tuple[int, ...],
     options: LayoutOptions,
 ) -> None:
+    title = section.title or f"Section {_format_ordinal_path(ordinal_path)}"
+    line_offset = len(lines)
+    contents.append(
+        ContentsEntry(
+            section_id=section.id,
+            title=title,
+            line_offset=line_offset,
+            level=level,
+        )
+    )
+
     if section.title:
         if lines and lines[-1] != "":
             _append_blank_lines(lines, options.section_spacing)
@@ -157,8 +197,19 @@ def _append_section(
             _append_blank_lines(lines, options.paragraph_spacing)
         _append_paragraph(lines, paragraph, options=options)
 
-    for child in section.children:
-        _append_section(lines, child, level=level + 1, options=options)
+    for index, child in enumerate(section.children, start=1):
+        _append_section(
+            lines,
+            contents,
+            child,
+            level=level + 1,
+            ordinal_path=(*ordinal_path, index),
+            options=options,
+        )
+
+
+def _format_ordinal_path(ordinal_path: tuple[int, ...]) -> str:
+    return ".".join(str(value) for value in ordinal_path)
 
 
 def _append_paragraph(

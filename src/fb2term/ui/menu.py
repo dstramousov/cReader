@@ -5,7 +5,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Final
 
-MENU_LEFT_TEXT: Final[str] = " F1 Help  F2 Theme  PgUp Prev  PgDn/Space Next  F10 Quit "
+MENU_LEFT_TEXT: Final[str] = (
+    " F1 Help  F2 Theme  F3 Contents  PgUp Prev  PgDn/Space Next  F10 Quit "
+)
+COMPACT_MENU_LEFT_TEXT: Final[str] = " F1 Help F2 Theme F3 Contents F10 Quit "
 
 
 def format_clock_text(now: datetime | None = None) -> str:
@@ -40,9 +43,8 @@ def format_menu_text(*, width: int, theme_label: str, clock_text: str) -> str:
     if width <= 0:
         return left_text
     if len(left_text) + len(right_text) + 1 > width:
-        compact_left = " F1 Help F2 Theme F10 Quit "
-        if len(compact_left) + len(right_text) + 1 <= width:
-            left_text = compact_left
+        if len(COMPACT_MENU_LEFT_TEXT) + len(right_text) + 1 <= width:
+            left_text = COMPACT_MENU_LEFT_TEXT
         else:
             return left_text[:width]
     padding = max(width - len(left_text) - len(right_text), 1)

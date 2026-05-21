@@ -9,6 +9,8 @@ from textual.timer import Timer
 
 from fb2term.domain.book import Book
 from fb2term.layout.document import LayoutOptions, render_book
+from fb2term.storage import StateStore
+from fb2term.ui.screens.contents_modal import ContentsModal
 from fb2term.ui.screens.help_modal import HelpModal
 from fb2term.ui.theme import Theme, get_next_theme_name, get_theme
 from fb2term.ui.widgets.menu_bar import MenuBar
@@ -22,8 +24,11 @@ class ReaderScreen(Screen[None]):
     BINDINGS = [
         Binding("f1", "show_help", "Help"),
         Binding("f2", "switch_theme", "Theme"),
+        Binding("f3", "show_contents", "Contents"),
         Binding("q", "quit_app", "Quit"),
         Binding("f10", "quit_app", "Quit"),
+        Binding("up", "line_up", "Line up"),
+        Binding("down", "line_down", "Line down"),
         Binding("pagedown", "page_down", "Next page"),
         Binding("space", "page_down", "Next page"),
         Binding("pageup", "page_up", "Previous page"),
@@ -41,6 +46,7 @@ class ReaderScreen(Screen[None]):
         *,
         theme_name: str | None = None,
         line_width: int = 88,
+        state_store: StateStore | None = None,
     ) -> None:
         """Initialize the reader screen.
 
@@ -48,12 +54,14 @@ class ReaderScreen(Screen[None]):
             book: Parsed book to display.
             theme_name: Optional UI theme name.
             line_width: Preferred rendered text width.
+            state_store: Optional state store override.
         """
 
         super().__init__()
         self.book = book
         self.theme: Theme = get_theme(theme_name)
         self.document = render_book(book, options=LayoutOptions(width=line_width))
+        self.state_store = state_store or StateStore.default()
         self.menu_bar: MenuBar | None = None
         self.reader_view: ReaderView | None = None
         self.status_bar: StatusBar | None = None
@@ -77,14 +85,28 @@ class ReaderScreen(Screen[None]):
         """Apply theme and initialize dynamic bars."""
 
         self._apply_theme()
+        self._restore_position()
         self._update_menu()
         self._update_status()
         self._clock_timer = self.set_interval(30.0, self._update_menu)
+
+    def on_unmount(self) -> None:
+        """Persist current reader position when the screen is removed."""
+
+        self._save_position()
 
     def action_show_help(self) -> None:
         """Open keyboard help modal."""
 
         self.app.push_screen(HelpModal(self.theme))
+
+    def action_show_contents(self) -> None:
+        """Open table-of-contents modal."""
+
+        self.app.push_screen(
+            ContentsModal(self.theme, self.document.contents),
+            self._handle_contents_result,
+        )
 
     def action_switch_theme(self) -> None:
         """Switch to the next registered reader theme."""
@@ -94,13 +116,29 @@ class ReaderScreen(Screen[None]):
         self._update_menu()
         self._update_status()
 
+    def action_line_down(self) -> None:
+        """Handle one-line down navigation."""
+
+        if self.reader_view is None:
+            return
+        self.reader_view.scroll_line_down()
+        self._after_navigation()
+
+    def action_line_up(self) -> None:
+        """Handle one-line up navigation."""
+
+        if self.reader_view is None:
+            return
+        self.reader_view.scroll_line_up()
+        self._after_navigation()
+
     def action_page_down(self) -> None:
         """Handle page-down navigation."""
 
         if self.reader_view is None:
             return
         self.reader_view.scroll_page_down()
-        self._update_status()
+        self._after_navigation()
 
     def action_page_up(self) -> None:
         """Handle page-up navigation."""
@@ -108,12 +146,36 @@ class ReaderScreen(Screen[None]):
         if self.reader_view is None:
             return
         self.reader_view.scroll_page_up()
-        self._update_status()
+        self._after_navigation()
 
     def action_quit_app(self) -> None:
         """Exit the application."""
 
+        self._save_position()
         self.app.exit()
+
+    def _handle_contents_result(self, line_offset: int | None) -> None:
+        if line_offset is None or self.reader_view is None:
+            return
+        self.reader_view.scroll_to_offset(line_offset)
+        self._after_navigation()
+
+    def _after_navigation(self) -> None:
+        self._update_status()
+        self._save_position()
+
+    def _restore_position(self) -> None:
+        if self.reader_view is None:
+            return
+        line_offset = self.state_store.load_position(self.book.id)
+        if line_offset is None:
+            return
+        self.reader_view.scroll_to_offset(line_offset)
+
+    def _save_position(self) -> None:
+        if self.reader_view is None:
+            return
+        self.state_store.save_position(self.book.id, self.reader_view.offset)
 
     def _apply_theme(self) -> None:
         self.styles.background = self.theme.background

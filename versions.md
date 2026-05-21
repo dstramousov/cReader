@@ -25,3 +25,8 @@
 - Made the F1 help dialog behave as a compact overlay instead of repainting the whole modal screen.
 - Added a Norton Commander style top-menu clock.
 - Added F2 theme switching for the reader UI.
+
+## v0.0.5 -> v0.0.6
+- Added JSON-backed reader position persistence.
+- Added one-line up/down scrolling with arrow keys.
+- Added F3 table-of-contents modal with chapter selection and jump navigation.

@@ -45,11 +45,7 @@ class ReaderView(Static, can_focus=True):
         """
 
         event.stop()
-        self.offset = self.document.clamp_offset(
-            self.offset,
-            viewport_height=self.viewport_height,
-        )
-        self._refresh_content()
+        self.scroll_to_offset(self.offset)
 
     def watch_offset(self, _old_value: int, _new_value: int) -> None:
         """Refresh content after offset changes.
@@ -71,19 +67,35 @@ class ReaderView(Static, can_focus=True):
 
         return max(self.size.height, 1)
 
+    def scroll_line_down(self) -> None:
+        """Move the viewport one line down."""
+
+        self.scroll_to_offset(self.offset + 1)
+
+    def scroll_line_up(self) -> None:
+        """Move the viewport one line up."""
+
+        self.scroll_to_offset(self.offset - 1)
+
     def scroll_page_down(self) -> None:
         """Move the viewport one page down."""
 
-        self.offset = self.document.clamp_offset(
-            self.offset + self.viewport_height,
-            viewport_height=self.viewport_height,
-        )
+        self.scroll_to_offset(self.offset + self.viewport_height)
 
     def scroll_page_up(self) -> None:
         """Move the viewport one page up."""
 
+        self.scroll_to_offset(self.offset - self.viewport_height)
+
+    def scroll_to_offset(self, offset: int) -> None:
+        """Move the viewport to a requested line offset.
+
+        Args:
+            offset: Requested top-line offset.
+        """
+
         self.offset = self.document.clamp_offset(
-            self.offset - self.viewport_height,
+            offset,
             viewport_height=self.viewport_height,
         )
 
