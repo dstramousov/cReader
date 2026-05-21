@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fb2term"
+version = "0.0.2"
+description = "Minimal terminal reader for FB2 books."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+  { name = "cReader contributors" }
+]
+keywords = ["fb2", "reader", "terminal", "tui", "textual"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Text Processing :: Markup :: XML",
+]
+dependencies = [
+  "textual>=0.86.0",
+  "wcwidth>=0.2.13",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.13.0",
+  "pytest>=8.3.0",
+  "ruff>=0.8.0",
+]
+
+[project.scripts]
+fb2term = "fb2term.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fb2term"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["fb2term"]
