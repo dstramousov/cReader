@@ -8,7 +8,9 @@ from textual.screen import Screen
 
 from fb2term.domain.book import Book
 from fb2term.layout.document import LayoutOptions, render_book
+from fb2term.ui.screens.help_modal import HelpModal
 from fb2term.ui.theme import Theme, get_theme
+from fb2term.ui.widgets.menu_bar import MenuBar
 from fb2term.ui.widgets.reader_view import ReaderView
 from fb2term.ui.widgets.status_bar import StatusBar
 
@@ -17,7 +19,9 @@ class ReaderScreen(Screen[None]):
     """Screen that displays a single opened book."""
 
     BINDINGS = [
+        Binding("f1", "show_help", "Help"),
         Binding("q", "quit_app", "Quit"),
+        Binding("f10", "quit_app", "Quit"),
         Binding("pagedown", "page_down", "Next page"),
         Binding("space", "page_down", "Next page"),
         Binding("pageup", "page_up", "Previous page"),
@@ -48,6 +52,7 @@ class ReaderScreen(Screen[None]):
         self.book = book
         self.theme: Theme = get_theme(theme_name)
         self.document = render_book(book, options=LayoutOptions(width=line_width))
+        self.menu_bar: MenuBar | None = None
         self.reader_view: ReaderView | None = None
         self.status_bar: StatusBar | None = None
 
@@ -55,11 +60,13 @@ class ReaderScreen(Screen[None]):
         """Compose screen widgets.
 
         Yields:
-            Reader viewport and status bar widgets.
+            Top menu, reader viewport, and status bar widgets.
         """
 
+        self.menu_bar = MenuBar()
         self.reader_view = ReaderView(self.document)
         self.status_bar = StatusBar("")
+        yield self.menu_bar
         yield self.reader_view
         yield self.status_bar
 
@@ -68,6 +75,11 @@ class ReaderScreen(Screen[None]):
 
         self._apply_theme()
         self._update_status()
+
+    def action_show_help(self) -> None:
+        """Open keyboard help modal."""
+
+        self.app.push_screen(HelpModal(self.theme))
 
     def action_page_down(self) -> None:
         """Handle page-down navigation."""
@@ -93,6 +105,10 @@ class ReaderScreen(Screen[None]):
     def _apply_theme(self) -> None:
         self.styles.background = self.theme.background
         self.styles.color = self.theme.foreground
+
+        if self.menu_bar is not None:
+            self.menu_bar.styles.background = self.theme.status_background
+            self.menu_bar.styles.color = self.theme.status_foreground
 
         if self.reader_view is not None:
             self.reader_view.styles.background = self.theme.background

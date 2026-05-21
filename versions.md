@@ -14,3 +14,8 @@
 - Added book-to-lines document layout for reader rendering.
 - Added minimal Textual reader app with PageUp/PageDown navigation and status bar.
 - Connected CLI book opening to the Textual reader and added theme selection.
+
+## v0.0.3 -> v0.0.4
+- Added Norton Commander inspired top command menu.
+- Added F1 keyboard help modal with reader shortcuts.
+- Added F10 exit binding alongside q.
