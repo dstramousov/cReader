@@ -1,6 +1,11 @@
 import pytest
 
-from fb2term.layout.wrapper import TextWrapError, display_width, wrap_paragraph, wrap_paragraphs
+from fb2term.layout.wrapper import (
+    TextWrapError,
+    display_width,
+    wrap_paragraph,
+    wrap_paragraphs,
+)
 
 
 def test_display_width_handles_cyrillic() -> None:
