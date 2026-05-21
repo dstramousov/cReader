@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Final
 
 DEFAULT_THEME_NAME: Final[str] = "dark"
+THEME_CYCLE: Final[tuple[str, ...]] = ("dark", "light", "sepia")
 
 
 class ThemeNotFoundError(KeyError):
@@ -173,3 +174,19 @@ def get_theme(name: str | None = None) -> Theme:
     """
 
     return DEFAULT_THEME_REGISTRY.get(name or DEFAULT_THEME_NAME)
+
+
+def get_next_theme_name(current_name: str) -> str:
+    """Return the next theme name in the interactive theme cycle.
+
+    Args:
+        current_name: Current theme name.
+
+    Returns:
+        Next theme name.
+    """
+
+    if current_name not in THEME_CYCLE:
+        return DEFAULT_THEME_NAME
+    current_index = THEME_CYCLE.index(current_name)
+    return THEME_CYCLE[(current_index + 1) % len(THEME_CYCLE)]

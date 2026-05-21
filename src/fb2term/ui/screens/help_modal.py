@@ -22,6 +22,7 @@ class HelpModal(ModalScreen[None]):
     CSS = """
     HelpModal {
         align: center middle;
+        background: transparent;
     }
 
     #help-dialog {
@@ -56,7 +57,6 @@ class HelpModal(ModalScreen[None]):
     def on_mount(self) -> None:
         """Apply active theme colors."""
 
-        self.styles.background = self.theme.background
         if self.dialog is not None:
             self.dialog.styles.background = self.theme.status_background
             self.dialog.styles.color = self.theme.status_foreground

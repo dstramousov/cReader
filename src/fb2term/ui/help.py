@@ -21,6 +21,7 @@ class HelpEntry:
 
 READER_HELP_ENTRIES: Final[tuple[HelpEntry, ...]] = (
     HelpEntry("F1", "Show this help window"),
+    HelpEntry("F2", "Switch theme"),
     HelpEntry("PgDown / Space", "Next page"),
     HelpEntry("PgUp", "Previous page"),
     HelpEntry("q / F10", "Exit reader"),

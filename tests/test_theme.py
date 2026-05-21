@@ -1,6 +1,12 @@
 import pytest
 
-from fb2term.ui.theme import Theme, ThemeNotFoundError, ThemeRegistry, get_theme
+from fb2term.ui.theme import (
+    Theme,
+    ThemeNotFoundError,
+    ThemeRegistry,
+    get_next_theme_name,
+    get_theme,
+)
 
 
 def test_get_default_theme() -> None:
@@ -31,3 +37,13 @@ def test_theme_registry_rejects_duplicates() -> None:
 def test_unknown_theme_raises_clear_error() -> None:
     with pytest.raises(ThemeNotFoundError):
         get_theme("missing")
+
+
+def test_get_next_theme_name_cycles_in_nc_order() -> None:
+    assert get_next_theme_name("dark") == "light"
+    assert get_next_theme_name("light") == "sepia"
+    assert get_next_theme_name("sepia") == "dark"
+
+
+def test_get_next_theme_name_falls_back_for_unknown_theme() -> None:
+    assert get_next_theme_name("missing") == "dark"

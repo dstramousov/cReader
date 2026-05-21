@@ -19,3 +19,9 @@
 - Added Norton Commander inspired top command menu.
 - Added F1 keyboard help modal with reader shortcuts.
 - Added F10 exit binding alongside q.
+
+
+## v0.0.4 -> v0.0.5
+- Made the F1 help dialog behave as a compact overlay instead of repainting the whole modal screen.
+- Added a Norton Commander style top-menu clock.
+- Added F2 theme switching for the reader UI.

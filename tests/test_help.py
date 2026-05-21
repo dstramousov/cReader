@@ -10,6 +10,7 @@ def test_reader_help_entries_include_all_reader_bindings() -> None:
     keys = {entry.key for entry in READER_HELP_ENTRIES}
 
     assert "F1" in keys
+    assert "F2" in keys
     assert "PgDown / Space" in keys
     assert "PgUp" in keys
     assert "q / F10" in keys
