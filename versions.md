@@ -30,3 +30,7 @@
 - Added JSON-backed reader position persistence.
 - Added one-line up/down scrolling with arrow keys.
 - Added F3 table-of-contents modal with chapter selection and jump navigation.
+
+## v0.0.6 -> v0.0.7
+- Fixed restored reader positions rendering only a single visible line after app restart.
+- Forced reader viewport refresh when the widget size changes without changing the saved offset.

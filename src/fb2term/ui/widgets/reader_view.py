@@ -45,7 +45,7 @@ class ReaderView(Static, can_focus=True):
         """
 
         event.stop()
-        self.scroll_to_offset(self.offset)
+        self.refresh_viewport()
 
     def watch_offset(self, _old_value: int, _new_value: int) -> None:
         """Refresh content after offset changes.
@@ -94,10 +94,19 @@ class ReaderView(Static, can_focus=True):
             offset: Requested top-line offset.
         """
 
-        self.offset = self.document.clamp_offset(
+        next_offset = self.document.clamp_offset(
             offset,
             viewport_height=self.viewport_height,
         )
+        if next_offset == self.offset:
+            self._refresh_content()
+            return
+        self.offset = next_offset
+
+    def refresh_viewport(self) -> None:
+        """Synchronize rendered content with current size and offset."""
+
+        self.scroll_to_offset(self.offset)
 
     def _refresh_content(self) -> None:
         lines = self.document.visible_lines(

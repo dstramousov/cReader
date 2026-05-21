@@ -86,6 +86,7 @@ class ReaderScreen(Screen[None]):
 
         self._apply_theme()
         self._restore_position()
+        self._refresh_reader_view()
         self._update_menu()
         self._update_status()
         self._clock_timer = self.set_interval(30.0, self._update_menu)
@@ -163,6 +164,11 @@ class ReaderScreen(Screen[None]):
     def _after_navigation(self) -> None:
         self._update_status()
         self._save_position()
+
+    def _refresh_reader_view(self) -> None:
+        if self.reader_view is None:
+            return
+        self.reader_view.refresh_viewport()
 
     def _restore_position(self) -> None:
         if self.reader_view is None:
