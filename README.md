@@ -4,6 +4,9 @@
 
 **FB2Term Reader** — консольная читалка FB2-файлов под Linux с TUI-интерфейсом на Python + Textual.
 
+<img width="1299" height="667" alt="Screenshot 2026-05-21 at 15 49 43" src="https://github.com/user-attachments/assets/4d5a4aa5-ec8f-4cfc-a01e-b2c811bd1a9d" />
+
+
 Основная цель проекта — сделать удобную минималистичную читалку в терминале:
 
 - чтение `.fb2` и `.fb2.zip`;
