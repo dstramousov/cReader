@@ -2,7 +2,8 @@
 
 ## 1. Назначение проекта
 
-**FB2Term Reader** — консольная читалка FB2-файлов под Linux с TUI-интерфейсом на Python + Textual.
+**FB2Term Reader** — консольная читалка FB2-файлов под Linux с TUI-интерфейсом на Python + Textual.<img width="1308" height="624" alt="Screenshot 2026-05-21 at 16 13 21" src="https://github.com/user-attachments/assets/f212ccbf-cbbb-4dde-b9ac-b295fec79f49" />
+
 
 Основная цель проекта — сделать удобную минималистичную читалку в терминале:
 
